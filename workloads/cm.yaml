@@ -4,6 +4,6 @@ metadata:
   name: example-configmap
   namespace: e2e
 data:
-  timestamp: "1732039168"
+  timestamp: "1732041231"
   database: mongodb
   database_uri: mongodb://localhost:27017
