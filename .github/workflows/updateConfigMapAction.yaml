@@ -3,9 +3,6 @@ name: Update Timestamp
 on:
   schedule:
     - cron: '*/10 * * * *'
-  push:
-    branches:
-      - main
 
 jobs:
   update-timestamp:
