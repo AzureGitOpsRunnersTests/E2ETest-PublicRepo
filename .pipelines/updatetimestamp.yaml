@@ -13,7 +13,7 @@ schedules:
   always: true
 
 pool:
-  name: arce2eprod
+  name: arce2eprod4
 
 steps:
 - checkout: self
