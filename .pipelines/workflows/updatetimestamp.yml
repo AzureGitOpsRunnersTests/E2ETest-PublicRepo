@@ -1,0 +1,57 @@
+# azure-pipelines.yml
+name: UpdateTimestamp_$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger: none
+pr: none
+
+schedules:
+- cron: "*/15 * * * *"          # Azure DevOps schedules run in UTC
+  displayName: Every 15 minutes
+  branches:
+    include:
+    - main
+  always: true
+
+pool:
+  name: arce2eprod4
+
+steps:
+- checkout: self
+  persistCredentials: true       # REQUIRED so 'git push' works back to GitHub via the service connection
+  fetchDepth: 0
+
+- bash: |
+    set -euo pipefail
+
+    FILE="workloads/cm.yaml"
+    if [ ! -f "$FILE" ]; then
+      echo "ERROR: $FILE not found"
+      exit 1
+    fi
+
+    TIMESTAMP="$(date +%s)"
+
+    # Update existing timestamp if present, else insert under data:
+    if grep -qE '^[[:space:]]*timestamp:' "$FILE"; then
+      sed -i -E "s|^([[:space:]]*timestamp:).*|\1 \"${TIMESTAMP}\"|g" "$FILE"
+    else
+      # insert under the first 'data:' line (assumes it exists)
+      sed -i -E "/^[[:space:]]*data:[[:space:]]*$/a\  timestamp: \"${TIMESTAMP}\"" "$FILE"
+    fi
+
+    git config user.name  "azure-pipelines[bot]"
+    git config user.email "azure-pipelines[bot]@users.noreply.azuredevops.com"
+
+    git add "$FILE"
+
+    if git diff --cached --quiet; then
+      echo "No changes to commit."
+      exit 0
+    fi
+
+    git commit -m "Update timestamp to ${TIMESTAMP} [skip ci]"
+
+    # Rebase in case another run pushed recently, then push
+    git pull --rebase origin main
+    git push origin HEAD:main
+  displayName: Update timestamp and push
