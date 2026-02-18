@@ -5,8 +5,8 @@ trigger: none
 pr: none
 
 schedules:
-- cron: "*/15 * * * *"          # Azure DevOps schedules run in UTC
-  displayName: Every 15 minutes
+- cron: "*/20 * * * *"          # Azure DevOps schedules run in UTC
+  displayName: Every 20 minutes
   branches:
     include:
     - main
